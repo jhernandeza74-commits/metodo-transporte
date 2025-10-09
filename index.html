@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4CAF50">
   <meta charset="UTF-8">
   <title>Método de Transporte</title>
   <style>
@@ -19,6 +21,16 @@
   </style>
 </head>
 <body>
+ 
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(() => console.log("✅ Service Worker registrado"))
+      .catch(error => console.error("❌ Error al registrar el Service Worker", error));
+  }
+</script>
+   
+
   <h1>Método de Transporte </h1>
 
   <div class="input-box">
