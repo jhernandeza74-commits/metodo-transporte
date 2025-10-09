@@ -17,6 +17,11 @@
     #resultado { background: white; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
     .error { border: 2px solid red; background: #ffe6e6; }
   </style>
+
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
+
+  
 </head>
 <body>
   <h1>Método de Transporte (Esquina Noroeste)</h1>
@@ -131,5 +136,13 @@
       return sb;
     }
   </script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(() => console.log("✅ Service Worker registrado"))
+      .catch(error => console.error("❌ Error al registrar el Service Worker", error));
+  }
+</script>
 </body>
 </html>
+
