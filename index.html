@@ -1,9 +1,11 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4CAF50">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4CAF50">
+  <link rel="manifest" href="manifest.json">
   <title>Método de Transporte</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
@@ -18,20 +20,21 @@
     button:hover { background: #45a049; }
     #resultado { background: white; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
     .error { border: 2px solid red; background: #ffe6e6; }
+    #installBtn {
+      display: none;
+      background: #2196F3;
+      margin-bottom: 20px;
+    }
+    #installBtn:hover {
+      background: #0b7dda;
+    }
   </style>
 </head>
 <body>
- 
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js")
-      .then(() => console.log("✅ Service Worker registrado"))
-      .catch(error => console.error("❌ Error al registrar el Service Worker", error));
-  }
-</script>
-   
 
-  <h1>Método de Transporte </h1>
+  <button id="installBtn" onclick="instalarApp()">📥 Instalar App</button>
+
+  <h1>Método de Transporte</h1>
 
   <div class="input-box">
     <label for="oferta">Oferta:</label>
@@ -54,10 +57,24 @@
   <div id="resultado">Aquí aparecerá el paso a paso...</div>
 
   <script>
+    // Registrar Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js")
+        .then(() => console.log("✅ Service Worker registrado"))
+        .catch(error => console.error("❌ Error al registrar Service Worker:", error));
+    }
+
+    // Variables para almacenamiento en memoria
+    let datosGuardados = {
+      oferta: "",
+      demanda: "",
+      costos: ""
+    };
+
     // Recuperar datos guardados
-    document.getElementById("oferta").value = localStorage.getItem("oferta") || "";
-    document.getElementById("demanda").value = localStorage.getItem("demanda") || "";
-    document.getElementById("costos").value = localStorage.getItem("costos") || "";
+    document.getElementById("oferta").value = datosGuardados.oferta;
+    document.getElementById("demanda").value = datosGuardados.demanda;
+    document.getElementById("costos").value = datosGuardados.costos;
 
     function calcular() {
       let ofertaInput = document.getElementById("oferta");
@@ -65,33 +82,26 @@
       let costosInput = document.getElementById("costos");
       let resultadoDiv = document.getElementById("resultado");
 
-      // Resetear estilos
       ofertaInput.classList.remove("error");
       demandaInput.classList.remove("error");
       costosInput.classList.remove("error");
 
       try {
-        // Guardar datos
-        localStorage.setItem("oferta", ofertaInput.value);
-        localStorage.setItem("demanda", demandaInput.value);
-        localStorage.setItem("costos", costosInput.value);
+        datosGuardados.oferta = ofertaInput.value;
+        datosGuardados.demanda = demandaInput.value;
+        datosGuardados.costos = costosInput.value;
 
-        // Parsear oferta y demanda
         let oferta = ofertaInput.value.trim().split(/\s+/).map(Number);
         let demanda = demandaInput.value.trim().split(/\s+/).map(Number);
-
-        // Parsear matriz de costos
         let filas = costosInput.value.trim().split(";");
         let costos = filas.map(f => f.trim().split(/\s+/).map(Number));
 
-        // Validar dimensiones
         if (costos.length !== oferta.length || costos[0].length !== demanda.length) {
           costosInput.classList.add("error");
           resultadoDiv.textContent = "❌ Las dimensiones de la matriz de costos no coinciden con oferta y demanda.";
           return;
         }
 
-        // Ejecutar método esquina noroeste
         let resultado = esquinaNoroestePasoAPaso(oferta, demanda, costos);
         resultadoDiv.textContent = resultado;
 
@@ -142,7 +152,34 @@
       sb += \n💰 Costo total = ${costoTotal};
       return sb;
     }
+
+    // PWA Install
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+
+    function instalarApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('✅ App instalada');
+          }
+          deferredPrompt = null;
+          installBtn.style.display = 'none';
+        });
+      }
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('✅ PWA instalada');
+      installBtn.style.display = 'none';
+    });
   </script>
 </body>
 </html>
-
