@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4CAF50">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4CAF50">
   <title>Método de Transporte</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
@@ -18,20 +18,22 @@
     button:hover { background: #45a049; }
     #resultado { background: white; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
     .error { border: 2px solid red; background: #ffe6e6; }
+    #installBtn {
+      display: none;
+      background: #2196F3;
+      margin-bottom: 20px;
+    }
+    #installBtn:hover {
+      background: #0b7dda;
+    }
   </style>
+  <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22M%C3%A9todo%20de%20Transporte%22%2C%22short_name%22%3A%22Transporte%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f5f5f5%22%2C%22theme_color%22%3A%22%234CAF50%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzRDQUY1MCIvPjwvc3ZnPg%3D%3D%22%2C%22sizes%22%3A%22MTkyeDE5MiUyMDUxMng1MTIlMjBhbnklMjIlMkMldHlwZSUyMiUzQSUyMmltYWdlJTJGc3ZnJTJCeG1sJTIyJTdEJTVEJTdE">
 </head>
 <body>
- 
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js")
-      .then(() => console.log("✅ Service Worker registrado"))
-      .catch(error => console.error("❌ Error al registrar el Service Worker", error));
-  }
-</script>
-   
 
-  <h1>Método de Transporte </h1>
+  <button id="installBtn" onclick="instalarApp()">📥 Instalar App</button>
+
+  <h1>Método de Transporte</h1>
 
   <div class="input-box">
     <label for="oferta">Oferta:</label>
@@ -54,10 +56,17 @@
   <div id="resultado">Aquí aparecerá el paso a paso...</div>
 
   <script>
+    // Variables para almacenamiento en memoria
+    let datosGuardados = {
+      oferta: "",
+      demanda: "",
+      costos: ""
+    };
+
     // Recuperar datos guardados
-    document.getElementById("oferta").value = localStorage.getItem("oferta") || "";
-    document.getElementById("demanda").value = localStorage.getItem("demanda") || "";
-    document.getElementById("costos").value = localStorage.getItem("costos") || "";
+    document.getElementById("oferta").value = datosGuardados.oferta;
+    document.getElementById("demanda").value = datosGuardados.demanda;
+    document.getElementById("costos").value = datosGuardados.costos;
 
     function calcular() {
       let ofertaInput = document.getElementById("oferta");
@@ -71,10 +80,10 @@
       costosInput.classList.remove("error");
 
       try {
-        // Guardar datos
-        localStorage.setItem("oferta", ofertaInput.value);
-        localStorage.setItem("demanda", demandaInput.value);
-        localStorage.setItem("costos", costosInput.value);
+        // Guardar datos en memoria
+        datosGuardados.oferta = ofertaInput.value;
+        datosGuardados.demanda = demandaInput.value;
+        datosGuardados.costos = costosInput.value;
 
         // Parsear oferta y demanda
         let oferta = ofertaInput.value.trim().split(/\s+/).map(Number);
@@ -115,16 +124,16 @@
         let cantidad = Math.min(ofertaRestante[i], demandaRestante[j]);
         asignacion[i][j] = cantidad;
 
-        sb += `Asigno ${cantidad} unidades desde Origen ${i+1} a Destino ${j+1} (costo ${costos[i][j]})\n`;
+        sb += Asigno ${cantidad} unidades desde Origen ${i+1} a Destino ${j+1} (costo ${costos[i][j]})\n;
 
         ofertaRestante[i] -= cantidad;
         demandaRestante[j] -= cantidad;
 
         if (ofertaRestante[i] === 0) {
-          sb += `→ Oferta del Origen ${i+1} agotada.\n\n`;
+          sb += → Oferta del Origen ${i+1} agotada.\n\n;
           i++;
         } else {
-          sb += `→ Demanda del Destino ${j+1} satisfecha.\n\n`;
+          sb += → Demanda del Destino ${j+1} satisfecha.\n\n;
           j++;
         }
       }
@@ -134,14 +143,42 @@
       for (i = 0; i < oferta.length; i++) {
         for (j = 0; j < demanda.length; j++) {
           if (asignacion[i][j] > 0) {
-            sb += `Origen ${i+1} → Destino ${j+1}: ${asignacion[i][j]} unidades (costo ${costos[i][j]})\n`;
+            sb += Origen ${i+1} → Destino ${j+1}: ${asignacion[i][j]} unidades (costo ${costos[i][j]})\n;
             costoTotal += asignacion[i][j] * costos[i][j];
           }
         }
       }
-      sb += `\n💰 Costo total = ${costoTotal}`;
+      sb += \n💰 Costo total = ${costoTotal};
       return sb;
     }
+
+    // PWA Install functionality
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+
+    function instalarApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('✅ App instalada');
+          }
+          deferredPrompt = null;
+          installBtn.style.display = 'none';
+        });
+      }
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('✅ PWA instalada correctamente');
+      installBtn.style.display = 'none';
+    });
   </script>
 </body>
 </html>
