@@ -2,7 +2,7 @@ self.addEventListener("install", e => {
   e.waitUntil(
     caches.open("transporte-cache").then(cache => {
       return cache.addAll([
-        "index-viejo.html",
+        "index.html",
         "manifest.json",
         "icon-192.png",
         "icon-512.png"
