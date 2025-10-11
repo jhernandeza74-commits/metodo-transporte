@@ -81,6 +81,30 @@
       background-color: #1B5E20;
     }
 
+    a.app-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    a.app-button:hover {
+      background-color: #388E3C;
+    }
+
+    a.app-button img {
+      width: 24px;
+      height: 24px;
+      margin-right: 10px;
+    }
+
     #resultado {
       margin-top: 30px;
       background-color: #f1f8e9;
@@ -110,20 +134,10 @@
 
     <button onclick="calcular()">Calcular</button>
 
-    <a href="#" onclick="window.open(location.href, '_blank')" style="
-  display: flex;
-  align-items: center;
-  background: #4CAF50;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  margin-top: 20px;
-">
-  <img src="icon-192.png" alt="App Icon" style="width:24px; height:24px; margin-right:10px;">
-  Abrir en la app
-</a>
+    <a href="#" onclick="window.open(location.href, '_blank')" class="app-button">
+      <img src="icon-192.png" alt="Abrir en la app" />
+      Abrir en la app
+    </a>
 
     <div id="resultado">Aquí aparecerá el paso a paso...</div>
   </div>
