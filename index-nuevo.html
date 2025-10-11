@@ -1,0 +1,114 @@
+<!-- index-nuevo.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Método de Transporte</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4CAF50">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #388E3C;
+    }
+    #resultado {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #e8f5e9;
+      border-left: 5px solid #4CAF50;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Método de Transporte<br><small>(Esquina Noroeste)</small></h1>
+
+    <label for="oferta">Oferta (separada por comas):</label>
+    <input type="text" id="oferta" placeholder="Ejemplo: 20,15,25">
+
+    <label for="demanda">Demanda (separada por comas):</label>
+    <input type="text" id="demanda" placeholder="Ejemplo: 10,15,20,15">
+
+    <label for="costos">Matriz de costos (filas separadas por punto y coma):</label>
+    <input type="text" id="costos" placeholder="Ejemplo: 8 6 10 9; 9 7 4 2; 3 4 2 5">
+
+    <button onclick="calcular()">Calcular</button>
+
+    <div id="resultado">Aquí aparecerá el paso a paso...</div>
+  </div>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("✅ Service Worker registrado"))
+        .catch(error => console.error("❌ Error al registrar el Service Worker", error));
+    }
+
+    function calcular() {
+      const oferta = document.getElementById("oferta").value.split(",").map(Number);
+      const demanda = document.getElementById("demanda").value.split(",").map(Number);
+      const matriz = document.getElementById("costos").value.split(";").map(fila =>
+        fila.trim().split(" ").map(Number)
+      );
+
+      let resultado = "";
+      let i = 0, j = 0;
+      const asignaciones = [];
+
+      while (i < oferta.length && j < demanda.length) {
+        const cantidad = Math.min(oferta[i], demanda[j]);
+        asignaciones.push(`Asignar ${cantidad} unidades desde F${i+1} a D${j+1} (Costo: ${matriz[i][j]})`);
+        oferta[i] -= cantidad;
+        demanda[j] -= cantidad;
+
+        if (oferta[i] === 0) i++;
+        else if (demanda[j] === 0) j++;
+      }
+
+      resultado = asignaciones.join("<br>");
+      document.getElementById("resultado").innerHTML = resultado;
+    }
+  </script>
+</body>
+</html>
